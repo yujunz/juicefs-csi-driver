@@ -102,7 +102,7 @@ func (fs *jfs) GetBasePath() string {
 
 func (fs *jfs) CreateVol(volName string, capacityBytes int64) (Volume, error) {
 	volPath := path.Join(fs.MountPath, volName)
-	metaPath := path.Join(volPath, metaFile)
+	// metaPath := path.Join(volPath, metaFile)
 
 	klog.V(5).Infof("CreateVol: checking %q exists in %v", volPath, fs)
 	exists, err := fs.Provider.ExistsPath(volPath)
@@ -110,29 +110,30 @@ func (fs *jfs) CreateVol(volName string, capacityBytes int64) (Volume, error) {
 		return Volume{}, status.Errorf(codes.Internal, "Could not check volume path %q exists: %v", volPath, err)
 	}
 	if exists {
-		klog.V(5).Infof("CreateVol: reading meta from %q", metaPath)
-		file, err := ioutil.ReadFile(metaPath)
-		if err != nil {
-			return Volume{}, status.Errorf(codes.Internal, "Could not read volume meta from %q", metaPath)
-		}
-		meta := Meta{}
-		if json.Unmarshal([]byte(file), &meta) != nil {
-			return Volume{}, status.Errorf(codes.Internal, "Invalid meta %q", metaPath)
-		}
-		if meta.Volume.CapacityBytes >= capacityBytes {
-			klog.V(5).Infof("CreateVol: returning existed volume %v", meta.Volume)
-			return meta.Volume, nil
-		}
 		return Volume{}, status.Errorf(codes.AlreadyExists, "Volume: %q, capacity bytes: %d", volName, capacityBytes)
+		// klog.V(5).Infof("CreateVol: reading meta from %q", metaPath)
+		// file, err := ioutil.ReadFile(metaPath)
+		// if err != nil {
+		// 	return Volume{}, status.Errorf(codes.Internal, "Could not read volume meta from %q", metaPath)
+		// }
+		// meta := Meta{}
+		// if json.Unmarshal([]byte(file), &meta) != nil {
+		// 	return Volume{}, status.Errorf(codes.Internal, "Invalid meta %q", metaPath)
+		// }
+		// if meta.Volume.CapacityBytes >= capacityBytes {
+		// 	klog.V(5).Infof("CreateVol: returning existed volume %v", meta.Volume)
+		// 	return meta.Volume, nil
+		// }
+		// return Volume{}, status.Errorf(codes.AlreadyExists, "Volume: %q, capacity bytes: %d", volName, capacityBytes)
 	}
 
 	klog.V(5).Infof("CreateVol: volume not existed")
 	vol := Volume{
 		CapacityBytes: capacityBytes,
 	}
-	meta, err := json.Marshal(Meta{
-		vol,
-	})
+	// meta, err := json.Marshal(Meta{
+	// 	vol,
+	// })
 	if err != nil {
 		return Volume{}, status.Errorf(codes.Internal, "Could not marshal meta ID=%q capacityBytes=%v", volName, capacityBytes)
 	}
@@ -140,10 +141,10 @@ func (fs *jfs) CreateVol(volName string, capacityBytes int64) (Volume, error) {
 	if err := fs.Provider.MakeDir(volPath); err != nil {
 		return Volume{}, status.Errorf(codes.Internal, "Could not make directory %q", volPath)
 	}
-	klog.V(5).Infof("CreateVol: writing meta to %q", metaPath)
-	if ioutil.WriteFile(metaPath, meta, 0644) != nil {
-		return Volume{}, status.Errorf(codes.Internal, "Could not write meta to %q", metaPath)
-	}
+	// klog.V(5).Infof("CreateVol: writing meta to %q", metaPath)
+	// if ioutil.WriteFile(metaPath, meta, 0644) != nil {
+	// 	return Volume{}, status.Errorf(codes.Internal, "Could not write meta to %q", metaPath)
+	// }
 
 	klog.V(5).Infof("CreateVol: return %v", vol)
 	return vol, nil
