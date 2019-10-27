@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["fake_juicefs_provider.go"],
+    importpath = "github.com/juicedata/juicefs-csi-driver/tests/sanity",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/juicefs:go_default_library",
+        "@io_k8s_kubernetes//pkg/util/mount:go_default_library",
+        "@org_golang_google_grpc//codes:go_default_library",
+        "@org_golang_google_grpc//status:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["sanity_test.go"],
+    embed = [":go_default_library"],
+    deps = [
+        "//pkg/driver:go_default_library",
+        "@com_github_kubernetes_csi_csi_test//pkg/sanity:go_default_library",
+        "@com_github_onsi_ginkgo//:go_default_library",
+        "@com_github_onsi_gomega//:go_default_library",
+    ],
+)
